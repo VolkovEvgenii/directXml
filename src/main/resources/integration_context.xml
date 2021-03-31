@@ -13,8 +13,13 @@
     <int:gateway service-interface="ru.volkov.integration.channel.directxml.PrinterGateway"
                  default-request-channel="pollableChannel"/>
 
+    <bean id="customChannelInterceptor" class="ru.volkov.integration.channel.directxml.CustomChannelInterceptor"/>
+
     <int:channel id="pollableChannel">
         <int:queue capacity="10"/>
+        <int:interceptors>
+            <int:ref bean="customChannelInterceptor"/>
+        </int:interceptors>
     </int:channel>
 
     <int:bridge input-channel="pollableChannel" output-channel="inputChannel">

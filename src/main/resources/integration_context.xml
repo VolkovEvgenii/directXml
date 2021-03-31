@@ -11,7 +11,15 @@
        http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
     <int:gateway service-interface="ru.volkov.integration.channel.directxml.PrinterGateway"
-                 default-request-channel="inputChannel"/>
+                 default-request-channel="pollableChannel"/>
+
+    <int:channel id="pollableChannel">
+        <int:queue capacity="10"/>
+    </int:channel>
+
+    <int:bridge input-channel="pollableChannel" output-channel="inputChannel">
+        <int:poller fixed-delay="5000" max-messages-per-poll="2"/>
+    </int:bridge>
 
     <task:executor id="executor" pool-size="1"/>
     <int:publish-subscribe-channel id="inputChannel" task-executor="executor"/>

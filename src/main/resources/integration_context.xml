@@ -2,21 +2,23 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/integration
-       https://www.springframework.org/schema/integration/spring-integration.xsd">
+       https://www.springframework.org/schema/integration/spring-integration.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
     <int:gateway service-interface="ru.volkov.integration.channel.directxml.PrinterGateway"
                  default-request-channel="inputChannel"/>
 
-    <int:channel id="inputChannel">
-        <int:dispatcher failover="true"/>
-    </int:channel>
+    <task:executor id="executor" pool-size="1"/>
+    <int:publish-subscribe-channel id="inputChannel" task-executor="executor"/>
 
     <bean id="printService" class="ru.volkov.integration.channel.directxml.PrintService"/>
     <bean id="uppercasePrintService" class="ru.volkov.integration.channel.directxml.UppercasePrintService"/>
 
-    <int:service-activator order="2" ref="printService" method="print" input-channel="inputChannel"/>
-    <int:service-activator order="1" ref="uppercasePrintService" method="print" input-channel="inputChannel"/>
+    <int:service-activator ref="printService" method="print" input-channel="inputChannel"/>
+    <int:service-activator ref="uppercasePrintService" method="print" input-channel="inputChannel"/>
 </beans>
